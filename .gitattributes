@@ -1,0 +1,4 @@
+# Protect branding files during upstream merges (always keep ours)
+package.json              merge=ours
+src/constants/branding.ts merge=ours
+themes/pixi.json          merge=ours
