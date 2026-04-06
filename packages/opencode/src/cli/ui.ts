@@ -5,10 +5,10 @@ import { logo as glyphs } from "./logo"
 
 export namespace UI {
   const wordmark = [
-    `⠀                                ▄     `,
-    `█▀▀█ █▀▀█ █▀▀█ █▀▀▄ █▀▀▀ █▀▀█ █▀▀█ █▀▀█`,
-    `█  █ █  █ █▀▀▀ █  █ █    █  █ █  █ █▀▀▀`,
-    `▀▀▀▀ █▀▀▀ ▀▀▀▀ ▀  ▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀ ▀▀▀▀`,
+    `                    `,
+    `█▀▀█ ▀█▀ ▀▄ ▄▀ ▀█▀ `,
+    `█  █  █   ▄▀▄   █  `,
+    `▀▀▀▀  ▀  ▀   ▀  ▀  `,
   ]
 
   export const CancelledError = NamedError.create("UICancelledError", z.void())
@@ -61,14 +61,14 @@ export namespace UI {
     const result: string[] = []
     const reset = "\x1b[0m"
     const left = {
-      fg: "\x1b[90m",
-      shadow: "\x1b[38;5;235m",
-      bg: "\x1b[48;5;235m",
+      fg: "\x1b[38;2;92;15;139m",
+      shadow: "\x1b[38;2;60;10;90m",
+      bg: "\x1b[48;2;60;10;90m",
     }
     const right = {
-      fg: reset,
-      shadow: "\x1b[38;5;238m",
-      bg: "\x1b[48;5;238m",
+      fg: "\x1b[38;2;0;204;190m",
+      shadow: "\x1b[38;2;0;140;130m",
+      bg: "\x1b[48;2;0;140;130m",
     }
     const gap = " "
     const draw = (line: string, fg: string, shadow: string, bg: string) => {

@@ -550,7 +550,7 @@ export namespace ACP {
           "terminal-auth": {
             command: "opencode",
             args: ["auth", "login"],
-            label: "OpenCode Login",
+            label: "PIXI Login",
           },
         }
       }
@@ -575,7 +575,7 @@ export namespace ACP {
         },
         authMethods: [authMethod],
         agentInfo: {
-          name: "OpenCode",
+          name: "PIXI",
           version: Installation.VERSION,
         },
       }
