@@ -1,0 +1,15 @@
+*.map
+src/
+*.ts
+!*.d.ts
+.github/
+tests/
+test/
+script/
+migration/
+patches/
+.artifacts/
+*.tsbuildinfo
+tsconfig.json
+bunfig.toml
+bun.lock
