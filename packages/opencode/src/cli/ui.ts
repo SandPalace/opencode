@@ -4,14 +4,7 @@ import { NamedError } from "@opencode-ai/util/error"
 import { logo as glyphs } from "./logo"
 
 export namespace UI {
-  const wordmark = [
-    `                    `,
-    `█▀▀█ ▀█▀ ▀▄ ▄▀ ▀█▀ `,
-    `█  █  █   ▄▀▄   █  `,
-    `▀▀▀▀  ▀  ▀   ▀  ▀  `,
-  ]
-
-  export const CancelledError = NamedError.create("UICancelledError", z.void())
+export const CancelledError = NamedError.create("UICancelledError", z.void())
 
   export const Style = {
     TEXT_HIGHLIGHT: "\x1b[96m",
@@ -50,7 +43,7 @@ export namespace UI {
   export function logo(pad?: string) {
     if (!process.stdout.isTTY && !process.stderr.isTTY) {
       const result = []
-      for (const row of wordmark) {
+      for (const row of glyphs) {
         if (pad) result.push(pad)
         result.push(row)
         result.push(EOL)
@@ -58,50 +51,44 @@ export namespace UI {
       return result.join("").trimEnd()
     }
 
-    const result: string[] = []
+    // Gradient: purple → violet → indigo → blue → cyan
+    const gradientStops: Array<[number, number, number]> = [
+      [168, 85, 247],
+      [139, 92, 246],
+      [99, 102, 241],
+      [59, 130, 246],
+      [6, 182, 212],
+    ]
+
+    const lerp = (a: [number, number, number], b: [number, number, number], t: number) => [
+      Math.round(a[0] + (b[0] - a[0]) * t),
+      Math.round(a[1] + (b[1] - a[1]) * t),
+      Math.round(a[2] + (b[2] - a[2]) * t),
+    ]
+
+    const gradientColor = (t: number) => {
+      const scaled = t * (gradientStops.length - 1)
+      const i = Math.min(Math.floor(scaled), gradientStops.length - 2)
+      const [r, g, b] = lerp(gradientStops[i], gradientStops[i + 1], scaled - i)
+      return `\x1b[38;2;${r};${g};${b}m`
+    }
+
     const reset = "\x1b[0m"
-    const left = {
-      fg: "\x1b[38;2;92;15;139m",
-      shadow: "\x1b[38;2;60;10;90m",
-      bg: "\x1b[48;2;60;10;90m",
-    }
-    const right = {
-      fg: "\x1b[38;2;0;204;190m",
-      shadow: "\x1b[38;2;0;140;130m",
-      bg: "\x1b[48;2;0;140;130m",
-    }
-    const gap = " "
-    const draw = (line: string, fg: string, shadow: string, bg: string) => {
-      const parts: string[] = []
-      for (const char of line) {
-        if (char === "_") {
-          parts.push(bg, " ", reset)
-          continue
-        }
-        if (char === "^") {
-          parts.push(fg, bg, "▀", reset)
-          continue
-        }
-        if (char === "~") {
-          parts.push(shadow, "▀", reset)
-          continue
-        }
-        if (char === " ") {
-          parts.push(" ")
-          continue
-        }
-        parts.push(fg, char, reset)
-      }
-      return parts.join("")
-    }
-    glyphs.left.forEach((row, index) => {
+    const maxLen = Math.max(...glyphs.map((l) => l.length))
+    const result: string[] = []
+
+    for (const row of glyphs) {
       if (pad) result.push(pad)
-      result.push(draw(row, left.fg, left.shadow, left.bg))
-      result.push(gap)
-      const other = glyphs.right[index] ?? ""
-      result.push(draw(other, right.fg, right.shadow, right.bg))
+      for (let i = 0; i < row.length; i++) {
+        const char = row[i]
+        if (char === " ") {
+          result.push(" ")
+        } else {
+          result.push(gradientColor(i / maxLen), char, reset)
+        }
+      }
       result.push(EOL)
-    })
+    }
     return result.join("").trimEnd()
   }
 

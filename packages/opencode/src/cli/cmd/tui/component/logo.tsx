@@ -1,82 +1,47 @@
-import { TextAttributes, RGBA } from "@opentui/core"
+import { type RGBA } from "@opentui/core"
 import { For, type JSX } from "solid-js"
-import { useTheme, tint } from "@tui/context/theme"
-import { logo, marks } from "@/cli/logo"
+import { logo, logoGradient } from "@/cli/logo"
 
-// Shadow markers (rendered chars in parens):
-// _ = full shadow cell (space with bg=shadow)
-// ^ = letter top, shadow bottom (▀ with fg=letter, bg=shadow)
-// ~ = shadow top only (▀ with fg=shadow)
-const SHADOW_MARKER = new RegExp(`[${marks}]`)
+function lerpColor(a: [number, number, number], b: [number, number, number], t: number): RGBA {
+  return {
+    r: Math.round(a[0] + (b[0] - a[0]) * t),
+    g: Math.round(a[1] + (b[1] - a[1]) * t),
+    b: Math.round(a[2] + (b[2] - a[2]) * t),
+    a: 255,
+  }
+}
+
+function gradientColor(t: number): RGBA {
+  const stops = logoGradient
+  const scaled = t * (stops.length - 1)
+  const i = Math.min(Math.floor(scaled), stops.length - 2)
+  const localT = scaled - i
+  return lerpColor(stops[i], stops[i + 1], localT)
+}
 
 export function Logo() {
-  const { theme } = useTheme()
+  const maxLen = Math.max(...logo.map((l) => l.length))
 
-  const renderLine = (line: string, fg: RGBA, bold: boolean): JSX.Element[] => {
-    const shadow = tint(theme.background, fg, 0.25)
-    const attrs = bold ? TextAttributes.BOLD : undefined
+  const renderLine = (line: string): JSX.Element[] => {
     const elements: JSX.Element[] = []
-    let i = 0
-
-    while (i < line.length) {
-      const rest = line.slice(i)
-      const markerIndex = rest.search(SHADOW_MARKER)
-
-      if (markerIndex === -1) {
-        elements.push(
-          <text fg={fg} attributes={attrs} selectable={false}>
-            {rest}
-          </text>,
-        )
-        break
-      }
-
-      if (markerIndex > 0) {
-        elements.push(
-          <text fg={fg} attributes={attrs} selectable={false}>
-            {rest.slice(0, markerIndex)}
-          </text>,
-        )
-      }
-
-      const marker = rest[markerIndex]
-      switch (marker) {
-        case "_":
-          elements.push(
-            <text fg={fg} bg={shadow} attributes={attrs} selectable={false}>
-              {" "}
-            </text>,
-          )
-          break
-        case "^":
-          elements.push(
-            <text fg={fg} bg={shadow} attributes={attrs} selectable={false}>
-              ▀
-            </text>,
-          )
-          break
-        case "~":
-          elements.push(
-            <text fg={shadow} attributes={attrs} selectable={false}>
-              ▀
-            </text>,
-          )
-          break
-      }
-
-      i += markerIndex + 1
+    for (let i = 0; i < line.length; i++) {
+      const t = line[i] === " " ? i / maxLen : i / maxLen
+      const fg = gradientColor(i / maxLen)
+      elements.push(
+        <text fg={fg} selectable={false}>
+          {line[i]}
+        </text>,
+      )
     }
-
     return elements
   }
 
   return (
     <box>
-      <For each={logo.left}>
-        {(line, index) => (
-          <box flexDirection="row" gap={1}>
-            <box flexDirection="row">{renderLine(line, theme.textMuted, false)}</box>
-            <box flexDirection="row">{renderLine(logo.right[index()], theme.text, true)}</box>
+      <For each={logo}>
+        {(line) => (
+          <box flexDirection="row">
+            {renderLine(line)}
           </box>
         )}
       </For>
