@@ -7,6 +7,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
@@ -17,6 +19,40 @@ jobs:
       - run: bun install
       - run: bun run build
         working-directory: packages/opencode
+      - name: Create GitHub Release with Windows binaries
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+            const tag = context.ref.replace('refs/tags/', '')
+            const version = tag.replace('pixi-v', '')
+
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tag,
+              name: `pixicode v${version}`,
+              body: `Release of pixicode v${version}`,
+              draft: false,
+              prerelease: false,
+            })
+
+            const distDir = 'packages/opencode/dist'
+            const windowsDirs = fs.readdirSync(distDir).filter(d => d.startsWith('pixicode-windows-'))
+            for (const dir of windowsDirs) {
+              const binPath = path.join(distDir, dir, 'bin', 'pixi.exe')
+              if (!fs.existsSync(binPath)) continue
+              const data = fs.readFileSync(binPath)
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.data.id,
+                name: `${dir}.exe`,
+                data,
+              })
+              console.log(`Uploaded ${dir}.exe`)
+            }
       - name: Prepare package for publish
         working-directory: packages/opencode
         run: |

@@ -224,9 +224,8 @@ export namespace Installation {
             const r = (yield* text(["npm", "config", "get", "registry"])).trim()
             const reg = r || "https://registry.npmjs.org"
             const registry = reg.endsWith("/") ? reg.slice(0, -1) : reg
-            const channel = CHANNEL
             const response = yield* httpOk.execute(
-              HttpClientRequest.get(`${registry}/opencode-ai/${channel}`).pipe(HttpClientRequest.acceptJson),
+              HttpClientRequest.get(`${registry}/pixicode/latest`).pipe(HttpClientRequest.acceptJson),
             )
             const data = yield* HttpClientResponse.schemaBodyJson(NpmPackage)(response)
             return data.version

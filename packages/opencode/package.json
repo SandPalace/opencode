@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "name": "pixicode",
   "description": "PIXI — AI-powered coding assistant for the terminal",
   "type": "module",
@@ -27,7 +27,8 @@
     "format": "echo 'Formatting code...' && bun run --prettier --write src/**/*.ts",
     "docs": "echo 'Generating documentation...' && find src -name '*.ts' -exec echo 'Processing: {}' \\;",
     "deploy": "echo 'Deploying application...' && bun run build && echo 'Deployment completed successfully'",
-    "db": "bun drizzle-kit"
+    "db": "bun drizzle-kit",
+    "postinstall": "node postinstall.mjs"
   },
   "bin": {
     "pixicode": "./bin/pixi",
@@ -35,7 +36,8 @@
   },
   "files": [
     "bin/",
-    "dist/"
+    "dist/",
+    "postinstall.mjs"
   ],
   "exports": {
     "./*": "./src/*.ts"
