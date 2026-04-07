@@ -1,22 +1,20 @@
-import { type RGBA } from "@opentui/core"
 import { For, type JSX } from "solid-js"
 import { logo, logoGradient } from "@/cli/logo"
 
-function lerpColor(a: [number, number, number], b: [number, number, number], t: number): RGBA {
-  return {
-    r: Math.round(a[0] + (b[0] - a[0]) * t),
-    g: Math.round(a[1] + (b[1] - a[1]) * t),
-    b: Math.round(a[2] + (b[2] - a[2]) * t),
-    a: 255,
-  }
+function lerp(a: [number, number, number], b: [number, number, number], t: number): [number, number, number] {
+  return [
+    Math.round(a[0] + (b[0] - a[0]) * t),
+    Math.round(a[1] + (b[1] - a[1]) * t),
+    Math.round(a[2] + (b[2] - a[2]) * t),
+  ]
 }
 
-function gradientColor(t: number): RGBA {
+function gradientHex(t: number): string {
   const stops = logoGradient
   const scaled = t * (stops.length - 1)
   const i = Math.min(Math.floor(scaled), stops.length - 2)
-  const localT = scaled - i
-  return lerpColor(stops[i], stops[i + 1], localT)
+  const [r, g, b] = lerp(stops[i], stops[i + 1], scaled - i)
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`
 }
 
 export function Logo() {
@@ -25,13 +23,17 @@ export function Logo() {
   const renderLine = (line: string): JSX.Element[] => {
     const elements: JSX.Element[] = []
     for (let i = 0; i < line.length; i++) {
-      const t = line[i] === " " ? i / maxLen : i / maxLen
-      const fg = gradientColor(i / maxLen)
-      elements.push(
-        <text fg={fg} selectable={false}>
-          {line[i]}
-        </text>,
-      )
+      const char = line[i]
+      if (char === " ") {
+        elements.push(<text selectable={false}>{" "}</text>)
+      } else {
+        const fg = gradientHex(i / maxLen)
+        elements.push(
+          <text fg={fg} selectable={false}>
+            {char}
+          </text>,
+        )
+      }
     }
     return elements
   }
@@ -39,11 +41,7 @@ export function Logo() {
   return (
     <box>
       <For each={logo}>
-        {(line) => (
-          <box flexDirection="row">
-            {renderLine(line)}
-          </box>
-        )}
+        {(line) => <box flexDirection="row">{renderLine(line)}</box>}
       </For>
     </box>
   )
