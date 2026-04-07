@@ -17,6 +17,13 @@ jobs:
       - run: bun install
       - run: bun run build
         working-directory: packages/opencode
+      - name: Prune non-essential platform binaries
+        working-directory: packages/opencode
+        run: |
+          # Keep only the most common platforms to stay under npm size limits
+          cd dist
+          rm -rf pixicode-windows-* pixicode-linux-*-musl pixicode-linux-*-baseline* pixicode-darwin-x64-baseline
+          ls -la
       - run: npm publish --access public
         working-directory: packages/opencode
         env:
