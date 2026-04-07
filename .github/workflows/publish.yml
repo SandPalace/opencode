@@ -17,13 +17,22 @@ jobs:
       - run: bun install
       - run: bun run build
         working-directory: packages/opencode
-      - name: Prune non-essential platform binaries
+      - name: Prepare package for publish
         working-directory: packages/opencode
         run: |
           # Keep only the most common platforms to stay under npm size limits
           cd dist
           rm -rf pixicode-windows-* pixicode-linux-*-musl pixicode-linux-*-baseline* pixicode-darwin-x64-baseline
           ls -la
+          cd ..
+          # Strip dependencies — the binary is self-contained, no npm deps needed
+          node -e "
+            const pkg = require('./package.json');
+            delete pkg.dependencies;
+            delete pkg.devDependencies;
+            delete pkg.peerDependencies;
+            require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
       - run: npm publish --access public
         working-directory: packages/opencode
         env:
