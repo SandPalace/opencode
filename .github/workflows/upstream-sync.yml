@@ -1,0 +1,92 @@
+name: Upstream Sync
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Every Monday at 9am UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/anomalyco/opencode.git || true
+
+      - name: Fetch upstream
+        run: git fetch upstream main
+
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          UPSTREAM_COMMITS=$(git log HEAD..upstream/main --oneline)
+          if [ -z "$UPSTREAM_COMMITS" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No new upstream commits."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "$UPSTREAM_COMMITS" > /tmp/upstream-commits.txt
+            COMMIT_COUNT=$(echo "$UPSTREAM_COMMITS" | wc -l | tr -d ' ')
+            echo "commit_count=$COMMIT_COUNT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create sync branch and PR
+        if: steps.check.outputs.has_changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+
+            const date = new Date().toISOString().split('T')[0];
+            const branch = `chore/upstream-sync-${date}`;
+            const commitCount = '${{ steps.check.outputs.commit_count }}';
+            const commits = fs.readFileSync('/tmp/upstream-commits.txt', 'utf8').trim();
+
+            // Check if branch already exists
+            try {
+              execSync(`git ls-remote --exit-code origin refs/heads/${branch}`, { stdio: 'pipe' });
+              console.log(`Branch ${branch} already exists, skipping.`);
+              return;
+            } catch {
+              // Branch doesn't exist, proceed
+            }
+
+            // Create branch from upstream/main and push
+            execSync(`git checkout -b ${branch} upstream/main`);
+            execSync(`git push origin ${branch}`);
+
+            // Create PR
+            await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `chore: sync upstream opencode ${date}`,
+              head: branch,
+              base: 'main',
+              body: [
+                `## Upstream Sync — ${date}`,
+                '',
+                `Syncing **${commitCount}** new commit(s) from [upstream opencode](https://github.com/anomalyco/opencode).`,
+                '',
+                '### Upstream commits',
+                '```',
+                commits,
+                '```',
+                '',
+                '> **Review carefully** — upstream changes may conflict with PIXI customizations.',
+              ].join('\n'),
+            });
+
+            console.log(`PR created for ${commitCount} upstream commits.`);
