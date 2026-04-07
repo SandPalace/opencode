@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { createRequire } from "module"
+const require = createRequire(import.meta.url)
 const childProcess = require("child_process")
 const fs = require("fs")
 const path = require("path")
@@ -22,6 +24,8 @@ if (envPath) {
   run(envPath)
 }
 
+import { fileURLToPath } from "url"
+const __filename = fileURLToPath(import.meta.url)
 const scriptPath = fs.realpathSync(__filename)
 const scriptDir = path.dirname(scriptPath)
 
@@ -166,7 +170,18 @@ function findBinary(startDir) {
   }
 }
 
-const resolved = findBinary(scriptDir)
+// Also check dist/ directory (for bundled npm packages)
+function findInDist(startDir) {
+  const distDir = path.join(startDir, "..", "dist")
+  if (fs.existsSync(distDir)) {
+    for (const name of names) {
+      const candidate = path.join(distDir, name, "bin", binary)
+      if (fs.existsSync(candidate)) return candidate
+    }
+  }
+}
+
+const resolved = findBinary(scriptDir) || findInDist(scriptDir)
 if (!resolved) {
   console.error(
     "It seems that your package manager failed to install the right version of the PIXI CLI for your platform. You can try manually installing " +
