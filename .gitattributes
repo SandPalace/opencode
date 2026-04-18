@@ -1,4 +1,22 @@
-# Protect branding files during upstream merges (always keep ours)
-package.json              merge=ours
-src/constants/branding.ts merge=ours
-themes/pixi.json          merge=ours
+# Protect PIXI-owned files during upstream merges (always keep ours).
+# These paths must match the real monorepo layout — glob-style rules here
+# don't resolve across arbitrary nesting, so list the full path.
+
+packages/opencode/package.json                              merge=ours
+packages/opencode/src/constants/branding.ts                 merge=ours
+packages/opencode/src/cli/cmd/tui/context/theme/pixi.json   merge=ours
+packages/ui/src/theme/themes/pixi.json                      merge=ours
+
+# Fork-only packaging and launcher
+packages/opencode/bin/pixi          merge=ours
+packages/opencode/postinstall.mjs   merge=ours
+packages/opencode/.npmignore        merge=ours
+
+# Fork-only CI (upstream workflows are removed in this fork)
+.github/workflows/ci.yml             merge=ours
+.github/workflows/publish.yml        merge=ours
+.github/workflows/upstream-sync.yml  merge=ours
+
+# Fork docs
+README.md     merge=ours
+UPSTREAM.md   merge=ours

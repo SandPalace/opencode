@@ -16,4 +16,9 @@ export const logoGradient: Array<[number, number, number]> = [
   [6,   182, 212],  // cyan
 ]
 
-export const marks = "_^~"
+export const go = {
+  left: ["    ", "█▀▀▀", "█_^█", "▀▀▀▀"],
+  right: ["    ", "█▀▀█", "█__█", "▀▀▀▀"],
+}
+
+export const marks = "_^~,"
