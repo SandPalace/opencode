@@ -46,3 +46,6 @@ export function Logo() {
     </box>
   )
 }
+
+// Compat alias — upstream opencode references GoLogo.
+export { Logo as GoLogo }
