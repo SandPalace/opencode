@@ -23,11 +23,15 @@ iwr -useb https://algolab.academy/install.ps1 | iex
 npm install -g pixicode
 ```
 
-**Run once without installing** (any platform with Node.js):
+Or run once without installing (macOS / Linux only):
 
 ```bash
 npx pixicode
 ```
+
+> **Windows note:** `npm install -g pixicode` and `npx pixicode` do **not**
+> work on Windows — the npm package ships binaries only for macOS and
+> Linux. Use the PowerShell one-liner above.
 
 Step-by-step guides for kids: [Windows](docs/windows-quickstart.md) · [macOS](docs/mac-quickstart.md)
 
