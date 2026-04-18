@@ -5,10 +5,9 @@ A step-by-step guide to install and run PIXI on a Windows computer.
 ## What's inside
 
 1. [What you need](#1-what-you-need)
-2. [Fastest way — one command](#2-fastest-way--one-command)
-3. [Other way — Install Node.js first](#3-other-way--install-nodejs-first)
-4. [Run PIXI for the first time](#4-run-pixi-for-the-first-time)
-5. [If something goes wrong](#if-something-goes-wrong)
+2. [Install PIXI — one command](#2-install-pixi--one-command)
+3. [Run PIXI for the first time](#3-run-pixi-for-the-first-time)
+4. [If something goes wrong](#if-something-goes-wrong)
 
 ---
 
@@ -20,9 +19,9 @@ A step-by-step guide to install and run PIXI on a Windows computer.
 
 ---
 
-## 2. Fastest way — one command
+## 2. Install PIXI — one command
 
-This is the easiest way. It doesn't need Node.js.
+You don't need Node.js or anything else. One command installs everything.
 
 1. Press the **Windows key** on your keyboard
 2. Type `PowerShell`
@@ -42,52 +41,15 @@ Check it works:
 pixi --version
 ```
 
-If you see a version number, **PIXI is installed!** Skip to [step 4](#4-run-pixi-for-the-first-time).
+If you see a version number, **PIXI is installed!**
+
+> **Note:** Don't use `npm install -g pixicode` on Windows — the npm package
+> ships binaries only for macOS and Linux. The command above is the
+> supported way.
 
 ---
 
-## 3. Other way — Install Node.js first
-
-Use this only if step 2 didn't work.
-
-### 3a. Install Node.js
-
-1. Go to **https://nodejs.org**
-2. Click the big green button that says **LTS**
-3. Open the file you downloaded (ends in `.msi`)
-4. Click **Next** until it finishes, then **Finish**
-
-### 3b. Check it works
-
-Open **PowerShell** and type:
-
-```powershell
-node --version
-```
-
-Then:
-
-```powershell
-npm --version
-```
-
-Both should show a version number.
-
-### 3c. Install PIXI
-
-```powershell
-npm install -g pixicode
-```
-
-### 3d. Check PIXI works
-
-```powershell
-pixi --version
-```
-
----
-
-## 4. Run PIXI for the first time
+## 3. Run PIXI for the first time
 
 1. Make a folder for your project (or use one you already have)
 2. In PowerShell, go into that folder:
@@ -114,9 +76,16 @@ To quit PIXI, press `Ctrl + C`.
 
 Close PowerShell and open it again. Windows needs to refresh after installing new tools.
 
-### "npm is not recognized"
+### "It seems that your package manager failed to install the right version..."
 
-Node.js didn't install correctly. Go back to **Step 2** and run the installer again.
+This means you ran `npm install -g pixicode` — that doesn't work on Windows. Fix it:
+
+```powershell
+npm uninstall -g pixicode
+iwr -useb https://algolab.academy/install.ps1 | iex
+```
+
+Open a new PowerShell window and try `pixi --version` again.
 
 ### Still stuck?
 
