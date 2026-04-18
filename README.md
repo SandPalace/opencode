@@ -11,14 +11,25 @@
 
 ## Quick Start
 
-```bash
-# Run directly (no install needed)
-npx pixicode
+**Windows** (one line, no Node.js needed):
 
-# Or install globally
-npm install -g pixicode
-pixicode
+```powershell
+iwr -useb https://algolab.academy/install.ps1 | iex
 ```
+
+**macOS / Linux** (via npm):
+
+```bash
+npm install -g pixicode
+```
+
+**Run once without installing** (any platform with Node.js):
+
+```bash
+npx pixicode
+```
+
+Step-by-step guides for kids: [Windows](docs/windows-quickstart.md) · [macOS](docs/mac-quickstart.md)
 
 ## What is PIXI?
 
