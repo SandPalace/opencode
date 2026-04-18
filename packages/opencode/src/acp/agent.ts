@@ -543,7 +543,7 @@ export class Agent implements ACPAgent {
     if (params.clientCapabilities?._meta?.["terminal-auth"] === true) {
       authMethod._meta = {
         "terminal-auth": {
-          command: "opencode",
+          command: "pixi",
           args: ["auth", "login"],
           label: "PIXI Login",
         },
