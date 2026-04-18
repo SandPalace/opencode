@@ -183,11 +183,22 @@ function findInDist(startDir) {
 
 const resolved = findBinary(scriptDir) || findInDist(scriptDir)
 if (!resolved) {
-  console.error(
-    "It seems that your package manager failed to install the right version of the PIXI CLI for your platform. You can try manually installing " +
-      names.map((n) => `\"${n}\"`).join(" or ") +
-      " package",
-  )
+  if (platform === "windows") {
+    console.error(
+      "The PIXI npm package does not include the Windows binary. Install PIXI with the native installer instead:\n" +
+        "\n" +
+        "  iwr -useb https://algolab.academy/install.ps1 | iex\n" +
+        "\n" +
+        "Then open a new PowerShell window and run: pixi --version\n" +
+        "See https://github.com/sandpalace/opencode/blob/dev/docs/windows-quickstart.md",
+    )
+  } else {
+    console.error(
+      "It seems that your package manager failed to install the right version of the PIXI CLI for your platform. You can try manually installing " +
+        names.map((n) => `\"${n}\"`).join(" or ") +
+        " package",
+    )
+  }
   process.exit(1)
 }
 
