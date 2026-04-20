@@ -316,8 +316,11 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
     setStore(
       produce((draft) => {
         const lock = pick(kv.get("theme_mode_lock"))
-        const mode = pick(kv.get("theme_mode", props.mode))
-        draft.mode = lock ?? mode ?? props.mode
+        const mode = lock ?? props.mode
+        if (!lock && pick(kv.get("theme_mode")) !== undefined) {
+          kv.set("theme_mode", undefined)
+        }
+        draft.mode = mode
         draft.lock = lock
         const active = config.theme ?? kv.get("theme", "pixi")
         draft.active = typeof active === "string" ? active : "pixi"
@@ -375,7 +378,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
     }
 
     function apply(mode: "dark" | "light") {
-      kv.set("theme_mode", mode)
+      if (store.lock !== undefined) kv.set("theme_mode", mode)
       if (store.mode === mode) return
       setStore("mode", mode)
       renderer.clearPaletteCache()
@@ -391,6 +394,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
     function free() {
       setStore("lock", undefined)
       kv.set("theme_mode_lock", undefined)
+      kv.set("theme_mode", undefined)
       const mode = renderer.themeMode
       if (mode) apply(mode)
     }
@@ -399,7 +403,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
       if (store.lock) return
       apply(mode)
     }
-    // renderer.on(CliRenderEvents.THEME_MODE, handle)
+    renderer.on(CliRenderEvents.THEME_MODE, handle)
 
     const refresh = () => {
       renderer.clearPaletteCache()
